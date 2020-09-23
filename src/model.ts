@@ -6,7 +6,16 @@ export interface LineNumber {
 export abstract class TransliterationLineContent {}
 
 
-export abstract class StringTransliterationLineContent extends TransliterationLineContent {
+export class SupplementContent extends TransliterationLineContent {}
+
+export class UnCertain extends SupplementContent {
+    constructor(public content: StringTransliterationLineContent) {
+        super();
+    }
+}
+
+
+export abstract class StringTransliterationLineContent extends SupplementContent {
     constructor(public content: string) {
         super();
     }
@@ -20,18 +29,15 @@ export class Sumerogramm extends StringTransliterationLineContent {}
 
 export class Determinativ extends StringTransliterationLineContent {}
 
+export class PointedContent extends StringTransliterationLineContent {}
+
 
 export class Supplemented extends TransliterationLineContent {
-    constructor(public content: StringTransliterationLineContent) {
+    constructor(public content: SupplementContent) {
         super();
     }
 }
 
-export class UnCertain extends TransliterationLineContent {
-    constructor(public content: StringTransliterationLineContent) {
-        super();
-    }
-}
 
 export interface TransliterationLine {
     lineNumber: LineNumber;

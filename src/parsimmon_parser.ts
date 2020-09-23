@@ -3,17 +3,20 @@ import {
     Determinativ,
     Hittite,
     LineNumber,
+    PointedContent,
     StringTransliterationLineContent,
     Sumerogramm,
+    SupplementContent,
     Supplemented,
     TransliterationLine,
     TransliterationLineContent,
     UnCertain
 } from "./model";
-import {alt, createLanguage, digits, regexp, seq, string, TypedLanguage, whitespace} from "parsimmon";
+import {alt, createLanguage, digits, regexp, seq, seqObj, string, TypedLanguage, whitespace} from "parsimmon";
 
 type LanguageSpec = {
     // Helpers
+    number: number,
     leftSquareBracket: string,
     rightSquareBracket: string,
     poundSign: string;
@@ -28,10 +31,12 @@ type LanguageSpec = {
     akadogramm: Akadogramm;
     sumerogramm: Sumerogramm;
     determinativ: Determinativ,
+    pointedContent: PointedContent,
 
     stringLineContent: StringTransliterationLineContent,
 
     // Other contents
+    supplementContent: SupplementContent,
     supplemented: Supplemented,
     uncertain: UnCertain,
 
@@ -42,17 +47,17 @@ type LanguageSpec = {
 
 export const translation: TypedLanguage<LanguageSpec> = createLanguage<LanguageSpec>({
     // Helpers
-    poundSign: () => string('#').skip(whitespace),
+    number: () => digits.map(parseInt),
+    poundSign: () => string('#'),
     leftSquareBracket: () => string('['),
     rightSquareBracket: () => string(']'),
     questionMark: () => string('?'),
 
     // Line number
     lineNumberNotAbsolute: () => string('\''),
-    lineNumber: r => seq(digits, r.lineNumberNotAbsolute.times(0, 1))
-        .skip(whitespace)
-        .map(([numberStr, todo]) => {
-            return {number: parseInt(numberStr), isAbsolute: todo.length === 0};
+    lineNumber: r => seq(r.number, r.lineNumberNotAbsolute.times(0, 1))
+        .map(([number, todo]) => {
+            return {number, isAbsolute: todo.length === 0};
         }),
 
     // String content
@@ -68,23 +73,31 @@ export const translation: TypedLanguage<LanguageSpec> = createLanguage<LanguageS
     determinativ: () => regexp(/°(\p{Lu}+)°/u, 1)
         .map((result) => new Determinativ(result)),
 
-    stringLineContent: r => alt(r.hittite, r.akadogramm, r.sumerogramm, r.determinativ),
+    pointedContent: () => regexp(/\.(\p{Lu}+)/u, 1)
+        .map((result) => new PointedContent(result)),
+
+    stringLineContent: r => alt(r.hittite, r.akadogramm, r.sumerogramm, r.determinativ, r.pointedContent),
 
     // Other contents
     uncertain: r => seq(r.stringLineContent, r.questionMark)
         .map(([content, _]) => new UnCertain(content)),
 
-    supplemented: r => r.leftSquareBracket.then(r.stringLineContent).skip(r.rightSquareBracket)
+    supplementContent: r => alt(r.uncertain, r.stringLineContent),
+
+    supplemented: r => r.leftSquareBracket
+        .then(r.supplementContent)
+        .skip(r.rightSquareBracket)
         .map((content) => new Supplemented(content)),
 
 
-    content: r => alt(r.stringLineContent, r.supplemented, r.uncertain),
+    content: r => alt(r.supplemented, r.uncertain, r.stringLineContent),
 
-    transliterationLine: r =>
-        seq(r.lineNumber, r.poundSign, r.content.sepBy(whitespace))
-            .map(([lineNumber, _, content]) => {
-                const x: TransliterationLine = {lineNumber, content};
-                return x;
-            })
+    transliterationLine: r => seqObj(
+        ["lineNumber", r.lineNumber],
+        whitespace,
+        r.poundSign,
+        whitespace,
+        ["content", r.content.sepBy(whitespace)]
+    )
 
 });
