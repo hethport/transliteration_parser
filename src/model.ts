@@ -3,26 +3,33 @@ export interface LineNumber {
     isAbsolute: boolean;
 }
 
-export abstract class TransliterationLineContent {
-    protected constructor(public type: string, public content: string) {
+export abstract class TransliterationLineContent {}
+
+
+export abstract class StringTransliterationLineContent extends TransliterationLineContent {
+    constructor(public content: string) {
+        super();
     }
 }
 
-export class Hittite extends TransliterationLineContent {
-    constructor(content: string) {
-        super('Hittite', content);
+export class Hittite extends StringTransliterationLineContent {}
+
+export class Akadogramm extends StringTransliterationLineContent {}
+
+export class Sumerogramm extends StringTransliterationLineContent {}
+
+export class Determinativ extends StringTransliterationLineContent {}
+
+
+export class Supplemented extends TransliterationLineContent {
+    constructor(public content: StringTransliterationLineContent) {
+        super();
     }
 }
 
-export class Akadogramm extends TransliterationLineContent {
-    constructor(content: string) {
-        super('Akadogramm', content);
-    }
-}
-
-export class Sumerogram extends TransliterationLineContent {
-    constructor(content: string) {
-        super('Sumerogramm', content);
+export class UnCertain extends TransliterationLineContent {
+    constructor(public content: StringTransliterationLineContent) {
+        super();
     }
 }
 
