@@ -19,35 +19,40 @@ $ Bo 2019/1 # KBo 71.91 • Datierung jh. • CTH 470 • Duplikate – • Fund
 
 describe('test', () => {
     it('should parse hittite', () => {
-        expect(translation.hittite.tryParse('het')).toEqual(new Hittite('het'));
-        expect(translation.hittite.tryParse('tén')).toEqual(new Hittite('tén'));
+        expect(translation.hittite.tryParse('het'))
+            .toEqual(new Hittite('het'));
+        expect(translation.hittite.tryParse('tén'))
+            .toEqual(new Hittite('tén'));
     });
 
     it('should parse akadogramms', () => {
-        expect(translation.akadogramm.tryParse('_ABC')).toEqual(new Akadogramm('ABC'));
+        expect(translation.akadogramm.tryParse('_ABC'))
+            .toEqual(new Akadogramm('ABC'));
     });
 
     it('should parse sumerogramms', () => {
-        expect(translation.sumerogramm.tryParse('ABC')).toEqual(new Sumerogramm('ABC'));
+        expect(translation.sumerogramm.tryParse('ABC'))
+            .toEqual(new Sumerogramm('ABC'));
     });
 
     it('should parse determinatives', () => {
-        expect(translation.determinativ.tryParse('°ABC°')).toEqual(new Determinativ('ABC'));
+        expect(translation.determinativ.tryParse('°ABC°'))
+            .toEqual(new Determinativ('ABC'));
     });
 
     it('should parse lines', () => {
         const parser = translation.transliterationLine;
-
-        expect(parser.tryParse("2' # [DUMU?].MUNUS?-ma e-ša-⸢a⸣-[ri"))
-            .toEqual<TransliterationLine>({
-                lineNumber: {number: 2, isAbsolute: false},
-                content: []
-            })
 
         expect(parser.tryParse("3' # az-zi-ik-ki-it-[tén"))
             .toEqual<TransliterationLine>({
                 lineNumber: {number: 3, isAbsolute: false},
                 content: []
             });
+
+        expect(parser.tryParse("2' # [DUMU?].MUNUS?-ma e-ša-⸢a⸣-[ri"))
+            .toEqual<TransliterationLine>({
+                lineNumber: {number: 2, isAbsolute: false},
+                content: []
+            })
     });
 });

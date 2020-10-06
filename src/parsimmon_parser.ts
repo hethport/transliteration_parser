@@ -14,6 +14,10 @@ import {
 } from "./model";
 import {alt, createLanguage, digits, regexp, seq, seqObj, string, TypedLanguage, whitespace} from "parsimmon";
 
+const hittiteRegex = /[\p{Ll}-]+/u;
+const akadogrammRegex = /_(\p{Lu})+/u;
+const sumerogrammRegex = /[.\p{Lu}]+/u;
+
 type LanguageSpec = {
     // Helpers
     number: number,
@@ -61,13 +65,13 @@ export const translation: TypedLanguage<LanguageSpec> = createLanguage<LanguageS
         }),
 
     // String content
-    hittite: () => regexp(/[\p{Ll}-]+/u)
+    hittite: () => regexp(hittiteRegex)
         .map((result) => new Hittite(result)),
 
-    akadogramm: () => regexp(/_(\p{Lu})+/u, 1)
+    akadogramm: () => regexp(akadogrammRegex, 1)
         .map((result) => new Akadogramm(result)),
 
-    sumerogramm: () => regexp(/\p{Lu}+/u)
+    sumerogramm: () => regexp(sumerogrammRegex)
         .map((result) => new Sumerogramm(result)),
 
     determinativ: () => regexp(/°(\p{Lu}+)°/u, 1)
