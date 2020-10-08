@@ -1,4 +1,4 @@
-import {Akadogramm, Determinativ, Hittite, Sumerogramm, TransliterationLine} from "./model";
+import {Akadogramm, Determinativ, Hittite, Sumerogramm, Supplemented, TransliterationLine, UnCertain} from "./model";
 import {transliteration} from './parsimmon_parser';
 
 const x = `
@@ -17,12 +17,16 @@ $ Bo 2019/1 # KBo 71.91 • Datierung jh. • CTH 470 • Duplikate – • Fund
 12' # [x x] x [
 `
 
+function hit(content: string): Hittite {
+    return new Hittite(content)
+}
+
 describe('test', () => {
     it('should parse hittite', () => {
         expect(transliteration.hittite.tryParse('het'))
-            .toEqual(new Hittite('het'));
+            .toEqual(hit('het'));
         expect(transliteration.hittite.tryParse('tén'))
-            .toEqual(new Hittite('tén'));
+            .toEqual(hit('tén'));
     });
 
     it('should parse akadogramms', () => {
@@ -43,16 +47,39 @@ describe('test', () => {
     it('should parse lines', () => {
         const parser = transliteration.transliterationLine;
 
-        expect(parser.tryParse("3' # az-zi-ik-ki-it-[tén"))
+        expect(parser.tryParse("1' # [(x)] x ⸢zi⸣ x ["))
             .toEqual<TransliterationLine>({
-                lineNumber: {number: 3, isAbsolute: false},
-                content: [new Hittite('az-zi-ik-ki-it-[tén')]
+                lineNumber: {number: 1, isAbsolute: false},
+                content: [
+                    hit('[(x)]'),
+                    hit('x'),
+                    hit('⸢zi⸣'),
+                    hit('x'),
+                    hit('[')
+                ]
             });
 
         expect(parser.tryParse("2' # [DUMU?].MUNUS?-ma e-ša-⸢a⸣-[ri"))
             .toEqual<TransliterationLine>({
                 lineNumber: {number: 2, isAbsolute: false},
-                content: []
-            })
+                content: [
+                    new Supplemented(new UnCertain(new Sumerogramm('DUMU'))),
+                    new UnCertain(new Sumerogramm('.MUNUS')),
+                    hit('-ma'), hit('e-ša-⸢a⸣-[ri')
+                ]
+            });
+
+        expect(parser.tryParse("3' # az-zi-ik-ki-it-[tén"))
+            .toEqual<TransliterationLine>({
+                lineNumber: {number: 3, isAbsolute: false},
+                content: [hit('az-zi-ik-ki-it-[tén')]
+            });
+
+        expect(parser.tryParse("4' # nu ḫu-u-ma-an az-[zi-ik-ki- ¬¬¬"))
+            .toEqual<TransliterationLine>({
+                lineNumber: {number: 4, isAbsolute: false},
+                content: [
+                    hit('nu'), hit('ḫu-u-ma-an'), hit('az-[zi-ik-ki-'), hit('¬¬¬')]
+            });
     });
 });

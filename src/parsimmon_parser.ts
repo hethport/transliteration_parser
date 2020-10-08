@@ -12,9 +12,20 @@ import {
     TransliterationLineContent,
     UnCertain
 } from "./model";
-import {alt, createLanguage, digits, regexp, Result, seq, seqObj, string, TypedLanguage, whitespace} from "parsimmon";
+import {
+    alt,
+    createLanguage,
+    digits,
+    optWhitespace,
+    regexp,
+    Result,
+    seq,
+    seqObj,
+    string,
+    TypedLanguage
+} from "parsimmon";
 
-const hittiteRegex = /[\p{Ll}\[\]-]+/u;
+const hittiteRegex = /[\p{Ll}\[\]()⸢⸣¬-]+/u;
 const akadogrammRegex = /_(\p{Lu})+/u;
 const sumerogrammRegex = /[.\p{Lu}]+/u;
 
@@ -44,7 +55,9 @@ type LanguageSpec = {
     supplemented: Supplemented,
     uncertain: UnCertain,
 
-    content: TransliterationLineContent;
+    singleContent: TransliterationLineContent;
+
+    completeContent: TransliterationLineContent[];
 
     transliterationLine: TransliterationLine;
 }
@@ -88,20 +101,20 @@ export const transliteration: TypedLanguage<LanguageSpec> = createLanguage<Langu
 
     supplementContent: r => alt(r.uncertain, r.stringLineContent),
 
-    supplemented: r => r.leftSquareBracket
-        .then(r.supplementContent)
-        .skip(r.rightSquareBracket)
+    supplemented: r => r.supplementContent.wrap(r.leftSquareBracket, r.rightSquareBracket)
         .map((content) => new Supplemented(content)),
 
 
-    content: r => alt(r.supplemented, r.uncertain, r.stringLineContent),
+    singleContent: r => alt(r.supplemented, r.uncertain, r.stringLineContent),
+
+    completeContent: r => r.singleContent.sepBy(optWhitespace),
 
     transliterationLine: r => seqObj(
         ["lineNumber", r.lineNumber],
-        whitespace,
+        optWhitespace,
         r.poundSign,
-        whitespace,
-        ["content", r.content.sepBy(whitespace)]
+        optWhitespace,
+        ["content", r.completeContent]
     )
 
 });
