@@ -1,11 +1,12 @@
 {
   "name": "@hethport/transliteration_parser",
-  "version": "0.0.2",
+  "version": "0.0.6",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "prepublish": "tsc",
     "test": "jest"
   },
   "keywords": [],
@@ -22,6 +23,9 @@
     "tslint": "^6.1.3",
     "typescript": "^4.0.3"
   },
+  "files": [
+    "dist/**/*"
+  ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   }

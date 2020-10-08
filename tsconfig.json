@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
+    "declaration": true,
     "outDir": "dist",
     "sourceMap": true,
-    "lib": [
-      "ES2020"
-    ],
-    "declaration": true
+    "strict": true
   },
   "include": [
     "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
