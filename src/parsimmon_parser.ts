@@ -12,9 +12,9 @@ import {
     TransliterationLineContent,
     UnCertain
 } from "./model";
-import {alt, createLanguage, digits, regexp, seq, seqObj, string, TypedLanguage, whitespace} from "parsimmon";
+import {alt, createLanguage, digits, regexp, Result, seq, seqObj, string, TypedLanguage, whitespace} from "parsimmon";
 
-const hittiteRegex = /[\p{Ll}-]+/u;
+const hittiteRegex = /[\p{Ll}\[\]-]+/u;
 const akadogrammRegex = /_(\p{Lu})+/u;
 const sumerogrammRegex = /[.\p{Lu}]+/u;
 
@@ -49,7 +49,7 @@ type LanguageSpec = {
     transliterationLine: TransliterationLine;
 }
 
-export const translation: TypedLanguage<LanguageSpec> = createLanguage<LanguageSpec>({
+export const transliteration: TypedLanguage<LanguageSpec> = createLanguage<LanguageSpec>({
     // Helpers
     number: () => digits.map(parseInt),
     poundSign: () => string('#'),
@@ -68,8 +68,8 @@ export const translation: TypedLanguage<LanguageSpec> = createLanguage<LanguageS
     hittite: () => regexp(hittiteRegex)
         .map((result) => new Hittite(result)),
 
-    akadogramm: () => regexp(akadogrammRegex, 1)
-        .map((result) => new Akadogramm(result)),
+    akadogramm: () => regexp(akadogrammRegex)
+        .map((result) => new Akadogramm(result.substring(1))),
 
     sumerogramm: () => regexp(sumerogrammRegex)
         .map((result) => new Sumerogramm(result)),
@@ -105,3 +105,7 @@ export const translation: TypedLanguage<LanguageSpec> = createLanguage<LanguageS
     )
 
 });
+
+export function parseTransliterationLine(line: string): Result<TransliterationLine> {
+    return transliteration.transliterationLine.parse(line);
+}

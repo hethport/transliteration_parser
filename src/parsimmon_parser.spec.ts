@@ -1,5 +1,5 @@
 import {Akadogramm, Determinativ, Hittite, Sumerogramm, TransliterationLine} from "./model";
-import {translation} from './parsimmon_parser';
+import {transliteration} from './parsimmon_parser';
 
 const x = `
 $ Bo 2019/1 # KBo 71.91 • Datierung jh. • CTH 470 • Duplikate – • Fundort Büyükkale, westliche Befestigungsmauer, Schutt der Altgrabungen Planquadrat 338/348; 8,99-2,85; –-–; Niveau 1104,71 • Fund-Nr. 19-5000-5004 • Maße 62 x 45 x 22 mm
@@ -19,34 +19,34 @@ $ Bo 2019/1 # KBo 71.91 • Datierung jh. • CTH 470 • Duplikate – • Fund
 
 describe('test', () => {
     it('should parse hittite', () => {
-        expect(translation.hittite.tryParse('het'))
+        expect(transliteration.hittite.tryParse('het'))
             .toEqual(new Hittite('het'));
-        expect(translation.hittite.tryParse('tén'))
+        expect(transliteration.hittite.tryParse('tén'))
             .toEqual(new Hittite('tén'));
     });
 
     it('should parse akadogramms', () => {
-        expect(translation.akadogramm.tryParse('_ABC'))
+        expect(transliteration.akadogramm.tryParse('_ABC'))
             .toEqual(new Akadogramm('ABC'));
     });
 
     it('should parse sumerogramms', () => {
-        expect(translation.sumerogramm.tryParse('ABC'))
+        expect(transliteration.sumerogramm.tryParse('ABC'))
             .toEqual(new Sumerogramm('ABC'));
     });
 
     it('should parse determinatives', () => {
-        expect(translation.determinativ.tryParse('°ABC°'))
+        expect(transliteration.determinativ.tryParse('°ABC°'))
             .toEqual(new Determinativ('ABC'));
     });
 
     it('should parse lines', () => {
-        const parser = translation.transliterationLine;
+        const parser = transliteration.transliterationLine;
 
         expect(parser.tryParse("3' # az-zi-ik-ki-it-[tén"))
             .toEqual<TransliterationLine>({
                 lineNumber: {number: 3, isAbsolute: false},
-                content: []
+                content: [new Hittite('az-zi-ik-ki-it-[tén')]
             });
 
         expect(parser.tryParse("2' # [DUMU?].MUNUS?-ma e-ša-⸢a⸣-[ri"))
